@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import Box from '@mui/material/Box';
 import PropTypes from 'prop-types';
 import CoinsTable from '../coinsTable';
-import Header from '../header/index';
 import { getCoins } from './dashboardSlice';
 
 class Dashboard extends Component {
@@ -26,7 +25,6 @@ class Dashboard extends Component {
     const { coins } = this.props;
     return (
       <Box>
-        <Header />
         <CoinsTable coins={coins} />
       </Box>
     )

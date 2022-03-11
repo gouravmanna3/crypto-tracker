@@ -1,14 +1,17 @@
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
+import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import numeral from "numeral";
 import PropTypes from 'prop-types';
+import { useNavigate } from "react-router-dom";
 import CoinChart from './coinChart';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 const currencyFormat = {
   maximumFractionDigits: 2,
@@ -21,21 +24,53 @@ const CHART_BOX_SIZE = {
   width: 150
 };
 
+const useStyles = makeStyles((theme) => createStyles({
+  coinColumn: {
+    display: 'flex',
+    '& *': {
+      marginRight: '1rem'
+    }
+  },
+  tableContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  coinName: {
+    cursor: 'pointer',
+    '&:hover': {
+      textDecoration: 'underline'
+    }
+  }
+}));
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    fontWeight: 700,
+    padding: '10px 16px'
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 16,
+    width: '10%'
+  },
+}));
+
 const CoinsTable = ({coins}) => {
-  console.log(coins)
+  const classes = useStyles();
+  const navigate = useNavigate();
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+    <TableContainer className={classes.tableContainer}>
+      <Table sx={{ minWidth: 650, width: '1000px' }} aria-label="simple table" >
         <TableHead>
           <TableRow>
-            <TableCell>#</TableCell>
-            <TableCell align="left">Coin</TableCell>
-            <TableCell align="right">Price</TableCell>
-            <TableCell align="right">24h%</TableCell>
-            <TableCell align="right">7%</TableCell>
-            <TableCell align="right">24h volume</TableCell>
-            <TableCell align="right">Market Cap</TableCell>
-            <TableCell align="right">Last 7 days</TableCell>
+            <StyledTableCell>#</StyledTableCell>
+            <StyledTableCell align="left">Coin</StyledTableCell>
+            <StyledTableCell align="right">Price</StyledTableCell>
+            <StyledTableCell align="right">24h%</StyledTableCell>
+            <StyledTableCell align="right">7d%</StyledTableCell>
+            {/* <TableCell align="right">24h volume</TableCell>
+            <TableCell align="right">Market Cap</TableCell> */}
+            {/* <TableCell align="right">Last 7 days</TableCell> */}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -44,31 +79,49 @@ const CoinsTable = ({coins}) => {
               key={coin.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
+              <StyledTableCell component="th" scope="row">
                 {coin.market_cap_rank}
-              </TableCell>
-              <TableCell align="left">
+              </StyledTableCell>
+              <StyledTableCell align="left">
                 <img
                   height="20rem"
                   width="20rem"
                   src={coin.image}
                   alt={coin.name}
                 />
-                {coin.name}
-                {coin.symbol.toUpperCase()}
-              </TableCell>
-              <TableCell align="right">{coin.current_price.toLocaleString("en-IN", currencyFormat)}</TableCell>
-              <TableCell align="right">{numeral(coin.price_change_percentage_24h / 100).format("0.0%")}</TableCell>
-              <TableCell align="right">{numeral(coin.price_change_percentage_7d_in_currency / 100).format("0.0%")}</TableCell>
-              <TableCell align="right">{coin.total_volume.toLocaleString("en-IN")}</TableCell>
-              <TableCell align="right">{coin.market_cap.toLocaleString("en-IN")}</TableCell>
-              <TableCell align="right">
+                <b onClick={() => {
+                    navigate('/market');
+                  }}
+                  className={classes.coinName}
+                >
+                  {coin.name}
+                </b>
+                <div>{coin.symbol.toUpperCase()}</div>
+              </StyledTableCell>
+              <StyledTableCell align="right">{coin.current_price.toLocaleString("en-IN", currencyFormat)}</StyledTableCell>
+              <StyledTableCell 
+                align="right"
+                style={{color: Math.sign(coin.price_change_percentage_24h) >= 0 ? '#32cd32': '#FF0000' }}
+                
+              >
+                {numeral(coin.price_change_percentage_24h / 100).format("0.0%")}
+              </StyledTableCell>
+              <StyledTableCell 
+                align="right"
+                style={{color: Math.sign(coin.price_change_percentage_7d_in_currency) >= 0 ? '#32cd32': '#FF0000' }}
+              >
+                {numeral(coin.price_change_percentage_7d_in_currency / 100).format("0.0%")}
+              </StyledTableCell>
+              {/* <TableCell align="right">{coin.total_volume.toLocaleString("en-IN")}</TableCell>
+              <TableCell align="right">{coin.market_cap.toLocaleString("en-IN")}</TableCell> */}
+              {/* <TableCell align="right">
                 <CoinChart 
-                  coin={coin} 
+                  id={coin.id} 
                   height={CHART_BOX_SIZE.height}
                   width={CHART_BOX_SIZE.width}
+                  color={Math.sign(coin.price_change_percentage_7d_in_currency) >= 0 ? '#FF0000' : '#00FF00'}
                 />
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
