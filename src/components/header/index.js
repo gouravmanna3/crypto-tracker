@@ -1,10 +1,11 @@
 import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useNavigate } from "react-router-dom";
+import { 
+  Select, AppBar, Toolbar, Typography, Container, 
+  MenuItem, FormControl, InputLabel } from '@mui/material';
+import { connect, useDispatch } from 'react-redux';
+import { setCurrency } from '../../AppSlice';
 
 const darkTheme = createTheme({
   palette: {
@@ -15,20 +16,48 @@ const darkTheme = createTheme({
   },
 });
 
-const Header = () => {
+const Header = ({currency}) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const onCurrencyChange = (e) => {
+    dispatch(setCurrency(e.target.value));
+  }
+
   return (
     <ThemeProvider theme={darkTheme}>
         <AppBar position="static">
             <Container maxWidth="xl">
               <Toolbar disableGutters>
                 <Typography
-                  variant="h6"
-                  noWrap
-                  component="div"
-                  sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
+                  variant="h6" 
+                  component="div" 
+                  sx={{ flexGrow: 1 }}
+                  onClick={() => {
+                    navigate('/');
+                  }}
+                  style={{cursor: 'pointer'}}
                 >
-                  CryptoTracker
+                  Cryptoholic
                 </Typography>
+                <FormControl>
+                <InputLabel id="demo-simple-select-label">Currency</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={currency}
+                  label="Currency"
+                  style={{
+                    width: 100,
+                    height: 40,
+                    marginRight: 15
+                  }}
+                  onChange={onCurrencyChange}
+                >
+                  <MenuItem value={'INR'}>INR</MenuItem>
+                  <MenuItem value={'USD'}>USD</MenuItem>
+                </Select>
+                </FormControl>
               </Toolbar>
             </Container>
           </AppBar>
@@ -36,4 +65,10 @@ const Header = () => {
   )
 }
 
-export default Header;
+const mapStateToProps = (state) => {
+  return {
+    currency: state.app.currency
+  }
+}
+
+export default connect(mapStateToProps)(Header);

@@ -13,12 +13,19 @@ class Dashboard extends Component {
   }
 
   async componentDidMount(){
-    await this.getCoinsData();
+    const { currency } = this.props
+    await this.getCoinsData(currency);
   }
 
-  getCoinsData = () => {
+  getCoinsData = (currency) => {
     const { dispatchGetCoins } = this.props;
-    dispatchGetCoins();
+    dispatchGetCoins(currency.toLowerCase());
+  }
+
+  async componentDidUpdate(prevProps) {
+    const { currency } = this.props;
+    if(prevProps.currency !== currency)
+    await this.getCoinsData(currency); 
   }
 
   render() {
@@ -39,13 +46,14 @@ Dashboard.propTypes = {
 
 const mapStateToProps = (state) => {
   return {
-    coins: state.dashboard.coins
+    coins: state.dashboard.coins,
+    currency: state.app.currency
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    dispatchGetCoins: () => dispatch(getCoins())
+    dispatchGetCoins: (currency) => dispatch(getCoins(currency))
   }
 }
 
