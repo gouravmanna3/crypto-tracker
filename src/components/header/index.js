@@ -54,8 +54,8 @@ const Header = ({currency}) => {
                   }}
                   onChange={onCurrencyChange}
                 >
-                  <MenuItem value={'INR'}>INR</MenuItem>
-                  <MenuItem value={'USD'}>USD</MenuItem>
+                  <MenuItem value={'inr'}>INR</MenuItem>
+                  <MenuItem value={'usd'}>USD</MenuItem>
                 </Select>
                 </FormControl>
               </Toolbar>

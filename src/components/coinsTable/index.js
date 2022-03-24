@@ -1,28 +1,14 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell } from '@mui/material';
+import { tableCellClasses } from '@mui/material/TableCell';
 import numeral from "numeral";
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router-dom";
-import CoinChart from './coinChart';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { createStyles, makeStyles } from '@material-ui/core/styles';
+import { connect } from 'react-redux';
+import { currency_formatter } from '../../utils/utils';
 
-const currencyFormat = {
-  maximumFractionDigits: 2,
-  style: 'currency',
-  currency: 'INR'
-}
-
-const CHART_BOX_SIZE = {
-  height: 40,
-  width: 150
-};
 
 const useStyles = makeStyles((theme) => createStyles({
   coinColumn: {
@@ -33,13 +19,13 @@ const useStyles = makeStyles((theme) => createStyles({
   },
   tableContainer: {
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+    margin: '2em 0',
+    color: 'white'
   },
   coinName: {
-    cursor: 'pointer',
-    '&:hover': {
-      textDecoration: 'underline'
+    display: 'flex',
+    '& *': {
+      marginRight: '0.5rem'
     }
   }
 }));
@@ -47,27 +33,29 @@ const useStyles = makeStyles((theme) => createStyles({
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     fontWeight: 700,
-    padding: '10px 16px'
+    padding: '10px 16px',
+    color:'white'
   },
   [`&.${tableCellClasses.body}`]: {
     fontSize: 16,
-    width: '10%'
+    width: '10%',
+    color:'white'
   },
 }));
 
-const CoinsTable = ({coins}) => {
+const CoinsTable = ({ coins, currency }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   return (
     <TableContainer className={classes.tableContainer}>
-      <Table sx={{ minWidth: 650, width: '1000px' }} aria-label="simple table" >
+      <Table sx={{ minWidth: 650, width: '1000px', margin: '0 auto', zIndex: 1 }} aria-label="simple table" >
         <TableHead>
           <TableRow>
             <StyledTableCell>#</StyledTableCell>
             <StyledTableCell align="left">Coin</StyledTableCell>
-            <StyledTableCell align="right">Price</StyledTableCell>
-            <StyledTableCell align="right">24h%</StyledTableCell>
-            <StyledTableCell align="right">7d%</StyledTableCell>
+            <StyledTableCell align="left">Price</StyledTableCell>
+            <StyledTableCell align="left">24h%</StyledTableCell>
+            <StyledTableCell align="left">7d%</StyledTableCell>
             {/* <TableCell align="right">24h volume</TableCell>
             <TableCell align="right">Market Cap</TableCell> */}
             {/* <TableCell align="right">Last 7 days</TableCell> */}
@@ -83,31 +71,33 @@ const CoinsTable = ({coins}) => {
                 {coin.market_cap_rank}
               </StyledTableCell>
               <StyledTableCell align="left">
-                <img
-                  height="20rem"
-                  width="20rem"
-                  src={coin.image}
-                  alt={coin.name}
-                />
-                <b onClick={() => {
-                    navigate('/market');
-                  }}
-                  className={classes.coinName}
-                >
-                  {coin.name}
-                </b>
-                <div>{coin.symbol.toUpperCase()}</div>
+                <div className={classes.coinName}>
+                  <img
+                    height="25rem"
+                    width="25rem"
+                    src={coin.image}
+                    alt={coin.name}
+                  />
+                  <b onClick={() => {
+                      navigate(`/coins/${coin.id}`, {state: {id: coin.id}});
+                    }}
+                    
+                  >
+                    {coin.name}
+                  </b>
+                  <div>{coin.symbol.toUpperCase()}</div>
+                </div>
               </StyledTableCell>
-              <StyledTableCell align="right">{coin.current_price.toLocaleString("en-IN", currencyFormat)}</StyledTableCell>
+              <StyledTableCell align="left">{currency_formatter(currency, coin.current_price)}</StyledTableCell>
               <StyledTableCell 
-                align="right"
+                align="left"
                 style={{color: Math.sign(coin.price_change_percentage_24h) >= 0 ? '#32cd32': '#FF0000' }}
                 
               >
                 {numeral(coin.price_change_percentage_24h / 100).format("0.0%")}
               </StyledTableCell>
               <StyledTableCell 
-                align="right"
+                align="left"
                 style={{color: Math.sign(coin.price_change_percentage_7d_in_currency) >= 0 ? '#32cd32': '#FF0000' }}
               >
                 {numeral(coin.price_change_percentage_7d_in_currency / 100).format("0.0%")}
@@ -130,8 +120,15 @@ const CoinsTable = ({coins}) => {
   )
 }
 
+const mapStateToProps = (state) => {
+  return {
+    currency: state.app.currency
+  }
+}
+
 CoinsTable.propTypes = {
-  coins: PropTypes.array
+  coins: PropTypes.array.isRequired,
+  currency: PropTypes.string
 };
 
-export default CoinsTable;
+export default connect(mapStateToProps)(CoinsTable);
